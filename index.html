@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioStore | Materiais de Biologia, Terrários e Culturas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bio: {
+                            50: '#f5f8f4',
+                            100: '#e4f1e5',
+                            200: '#c8e5cc',
+                            300: '#9bc8a6',
+                            400: '#6ca97c',
+                            500: '#478c59',
+                            600: '#347144',
+                            700: '#2a5b37',
+                            800: '#205c3b',
+                            900: '#143d29',
+                            950: '#0b2317',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        pulseSubtle: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.03)' }
+                        },
+                        floatSlow: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-6px)' }
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.45s ease-out forwards',
+                        'pulse-subtle': 'pulseSubtle 3s ease-in-out infinite',
+                        'float-slow': 'floatSlow 4s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f8f4;
+            color: #26382b;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f8f4;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #9bc8a6;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #205c3b;
+        }
+        .cabecalho-vidro {
+            background: rgba(20, 61, 41, 0.94);
+            backdrop-filter: blur(12px);
+        }
+        .fundo-pontilhado {
+            background-image: radial-gradient(#9bc8a6 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .slide-carrossel {
+            transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+        }
+        .card-produto {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-produto:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(20, 61, 41, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Topo do site -->
+    <header class="cabecalho-vidro sticky top-0 z-40 text-white shadow-xl transition-all duration-300 border-b border-bio-700/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 gap-4">
+                
+                <a href="#" onclick="limparFiltros()" class="flex items-center gap-3 group focus:outline-none">
+                    <div class="bg-emerald-500/20 p-2.5 rounded-xl border border-emerald-400/30 group-hover:bg-emerald-500/30 group-hover:rotate-6 transition-all duration-300">
+                        <i data-lucide="sprout" class="w-7 h-7 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-bold tracking-tight text-white block leading-none">Bio<span class="text-emerald-400">Store</span></span>
+                        <span class="text-[10px] text-bio-200 tracking-wider uppercase font-medium">Ciência & Terrários</span>
+                    </div>
+                </a>
+
+                <!-- Busca desktop -->
+                <div class="hidden md:flex flex-1 max-w-md mx-4 relative">
+                    <input type="text" id="campoBuscaDesktop" placeholder="Buscar terrários, placas, microscópios..." 
+                        class="w-full bg-bio-950/70 border border-bio-700/60 rounded-full py-2.5 pl-11 pr-10 text-sm text-white placeholder-bio-300/60 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-bio-950/90 transition-all duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-bio-300 absolute left-3.5 top-3"></i>
+                    <button id="btnLimparBusca" class="hidden absolute right-3.5 top-3 text-bio-300 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Botões de conta e carrinho -->
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div id="areaUsuarioNav"></div>
+
+                    <button id="btnAbrirCarrinho" class="group relative bg-emerald-600/30 hover:bg-emerald-600/50 active:scale-95 p-2.5 rounded-xl border border-emerald-500/30 text-emerald-300 hover:text-white transition-all duration-300 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-6 h-6 transition-transform group-hover:scale-110"></i>
+                        <span class="hidden sm:inline font-semibold text-sm">Carrinho</span>
+                        <span id="contadorCarrinho" class="absolute -top-1.5 -right-1.5 bg-emerald-400 text-bio-950 text-xs font-black w-5 h-5 rounded-full flex items-center justify-center shadow-lg scale-0 transition-transform duration-300">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Busca celular -->
+            <div class="pb-4 md:hidden">
+                <div class="relative w-full">
+                    <input type="text" id="campoBuscaMobile" placeholder="Buscar produtos..." 
+                        class="w-full bg-bio-950/70 border border-bio-700/60 rounded-full py-2 pl-10 pr-4 text-sm text-white placeholder-bio-300/60 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                    <i data-lucide="search" class="w-4 h-4 text-bio-300 absolute left-3.5 top-3"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Banner principal (carrossel) -->
+        <section class="relative bg-gradient-to-br from-bio-900 via-bio-800 to-bio-950 text-white overflow-hidden border-b border-bio-700/40 select-none">
+            <div class="absolute inset-0 opacity-15 fundo-pontilhado"></div>
+
+            <div class="relative min-h-[440px] sm:min-h-[480px] flex items-center">
+                
+                <!-- Slide 1 -->
+                <div class="slide-carrossel absolute inset-0 opacity-100 scale-100 flex items-center py-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
+                        <div class="text-left space-y-5">
+                            <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 tracking-wide animate-pulse-subtle">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Coleção Autossustentável
+                            </span>
+                            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                                Explore a vida em <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-green-400">cada detalhe!</span>
+                            </h1>
+                            <p class="text-bio-100/90 text-sm sm:text-base font-light leading-relaxed max-w-xl">
+                                Terrários fechados criados com microecossistemas vivos, musgos tropicais e minerais raros para decorar seu espaço com ciência.
+                            </p>
+                            <div class="flex flex-wrap gap-3 pt-2">
+                                <button onclick="filtrarCategoria('Terrários', true)" class="bg-emerald-500 hover:bg-emerald-400 text-bio-950 font-bold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                                    Explorar Terrários <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                                <a href="#catalogo" class="bg-bio-700/60 hover:bg-bio-700 text-white font-medium px-5 py-3 rounded-xl border border-bio-600/50 hover:scale-105 transition-all flex items-center gap-2">
+                                    Ver Catálogo
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex justify-center">
+                            <div class="relative group animate-float-slow">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-green-300 rounded-3xl blur opacity-30 group-hover:opacity-70 transition duration-700"></div>
+                                <img src="https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=800&q=80" alt="Terrário Fechado" class="relative rounded-2xl shadow-2xl w-full max-w-md h-72 object-cover border border-bio-600/40 group-hover:scale-[1.02] transition-transform duration-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="slide-carrossel absolute inset-0 opacity-0 scale-95 flex items-center py-12 pointer-events-none">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
+                        <div class="text-left space-y-5">
+                            <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 tracking-wide animate-pulse-subtle">
+                                <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Microbiologia & Ensino
+                            </span>
+                            <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                                Culturas Vivas & <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-green-400">Inóculos Puros</span>
+                            </h2>
+                            <p class="text-bio-100/90 text-sm sm:text-base font-light leading-relaxed max-w-xl">
+                                Suprimentos estéreis, meio de cultura com Ágar BDA e microalgas vivas prontos para estudos práticos e pesquisas biológicas.
+                            </p>
+                            <div class="flex flex-wrap gap-3 pt-2">
+                                <button onclick="filtrarCategoria('Culturas', true)" class="bg-emerald-500 hover:bg-emerald-400 text-bio-950 font-bold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                                    Ver Culturas <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex justify-center">
+                            <div class="relative group animate-float-slow">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-green-300 rounded-3xl blur opacity-30 group-hover:opacity-70 transition duration-700"></div>
+                                <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=80" alt="Culturas em Petri" class="relative rounded-2xl shadow-2xl w-full max-w-md h-72 object-cover border border-bio-600/40 group-hover:scale-[1.02] transition-transform duration-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="slide-carrossel absolute inset-0 opacity-0 scale-95 flex items-center py-12 pointer-events-none">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
+                        <div class="text-left space-y-5">
+                            <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 tracking-wide animate-pulse-subtle">
+                                <i data-lucide="microscope" class="w-3.5 h-3.5"></i> Alta Precisão
+                            </span>
+                            <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                                Equipamentos de <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-green-400">Laboratório</span>
+                            </h2>
+                            <p class="text-bio-100/90 text-sm sm:text-base font-light leading-relaxed max-w-xl">
+                                Microscópios ópticos de 1000x, conjuntos de pinças cirúrgicas e lâminas preparadas para entusiastas e estudantes.
+                            </p>
+                            <div class="flex flex-wrap gap-3 pt-2">
+                                <button onclick="filtrarCategoria('Equipamentos', true)" class="bg-emerald-500 hover:bg-emerald-400 text-bio-950 font-bold px-6 py-3 rounded-xl shadow-lg shadow-emerald-950/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                                    Ver Equipamentos <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex justify-center">
+                            <div class="relative group animate-float-slow">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-green-300 rounded-3xl blur opacity-30 group-hover:opacity-70 transition duration-700"></div>
+                                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80" alt="Microscópio Biológico" class="relative rounded-2xl shadow-2xl w-full max-w-md h-72 object-cover border border-bio-600/40 group-hover:scale-[1.02] transition-transform duration-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Setas do banner -->
+            <button onclick="slideAnterior()" class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 bg-bio-950/50 hover:bg-bio-900 active:scale-90 border border-bio-700/60 text-white p-2.5 sm:p-3 rounded-full backdrop-blur-md transition-all duration-300 focus:outline-none">
+                <i data-lucide="chevron-left" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            </button>
+            <button onclick="proximoSlide()" class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 bg-bio-950/50 hover:bg-bio-900 active:scale-90 border border-bio-700/60 text-white p-2.5 sm:p-3 rounded-full backdrop-blur-md transition-all duration-300 focus:outline-none">
+                <i data-lucide="chevron-right" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            </button>
+
+            <div id="bolinhasCarrossel" class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                <button onclick="irParaSlide(0)" class="w-8 h-3 rounded-full bg-emerald-400 transition-all duration-500 focus:outline-none"></button>
+                <button onclick="irParaSlide(1)" class="w-3 h-3 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-500 focus:outline-none"></button>
+                <button onclick="irParaSlide(2)" class="w-3 h-3 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-500 focus:outline-none"></button>
+            </div>
+        </section>
+
+        <!-- Catálogo -->
+        <section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 bg-white/80 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-bio-100 shadow-sm">
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0" id="botoesCategoria"></div>
+
+                <div class="flex items-center gap-3 self-end md:self-auto">
+                    <label for="selectOrdenar" class="text-xs font-bold text-bio-700 uppercase tracking-wider whitespace-nowrap flex items-center gap-1">
+                        <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i> Ordenar:
+                    </label>
+                    <select id="selectOrdenar" class="bg-bio-50 border border-bio-200 text-bio-900 text-sm rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium transition-all duration-200">
+                        <option value="destaques">Destaques</option>
+                        <option value="menor-preco">Menor Preço</option>
+                        <option value="maior-preco">Maior Preço</option>
+                        <option value="nome-az">Nome (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="statusFiltro" class="mb-6 flex items-center justify-between text-sm text-bio-700 hidden animate-fade-in-up">
+                <div>Exibindo <span id="contadorProdutos" class="font-bold text-bio-950">0</span> produtos</div>
+                <button onclick="limparFiltros()" class="text-xs text-emerald-700 font-bold hover:underline flex items-center gap-1 transition-all">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Limpar filtros
+                </button>
+            </div>
+
+            <div id="gradeProdutos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"></div>
+
+            <div id="carregandoGrade" class="py-20 text-center flex flex-col items-center justify-center">
+                <div class="w-12 h-12 border-4 border-bio-200 border-t-bio-600 rounded-full animate-spin mb-4"></div>
+                <p class="text-bio-700 font-medium animate-pulse">Carregando catálogo de biologia...</p>
+            </div>
+
+            <div id="gradeVazia" class="hidden py-16 text-center bg-white rounded-2xl border border-bio-100 p-8 shadow-sm animate-fade-in-up">
+                <div class="w-16 h-16 bg-bio-50 text-bio-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="search-x" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-bio-900 mb-1">Nenhum produto encontrado</h3>
+                <p class="text-bio-600 text-sm mb-6">Tente ajustar seus termos de busca ou selecione outra categoria.</p>
+                <button onclick="limparFiltros()" class="bg-bio-800 text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-bio-900 transition-all hover:scale-105">
+                    Ver todos os produtos
+                </button>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-bio-950 text-bio-200 border-t border-bio-800/60 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                
+                <div class="space-y-4 md:col-span-1">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="sprout" class="w-6 h-6 text-emerald-400"></i>
+                        <span class="text-xl font-bold text-white tracking-tight">BioStore</span>
+                    </div>
+                    <p class="text-xs text-bio-300/80 leading-relaxed">
+                        Sua loja especializada em materiais biológicos de laboratório, manutenção de ecossistemas vivos e artigos educativos.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Categorias</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#catalogo" onclick="filtrarCategoria('Terrários')" class="hover:text-emerald-400 transition-colors">Terrários Fechados</a></li>
+                        <li><a href="#catalogo" onclick="filtrarCategoria('Culturas')" class="hover:text-emerald-400 transition-colors">Culturas Vivas</a></li>
+                        <li><a href="#catalogo" onclick="filtrarCategoria('Equipamentos')" class="hover:text-emerald-400 transition-colors">Microscópios & Lentes</a></li>
+                        <li><a href="#catalogo" onclick="filtrarCategoria('Insumos')" class="hover:text-emerald-400 transition-colors">Substratos e Reagentes</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Atendimento</h4>
+                    <ul class="space-y-2 text-xs text-bio-300">
+                        <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-emerald-400"></i> contato@biostore.com.br</li>
+                        <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-emerald-400"></i> (11) 3456-7890</li>
+                        <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i> São Paulo, SP - Brasil</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Pagamento Seguro</h4>
+                    <div class="flex flex-wrap gap-2 text-bio-400">
+                        <span class="bg-bio-900 border border-bio-800 px-3 py-1.5 rounded-lg text-xs font-semibold text-white">PIX</span>
+                        <span class="bg-bio-900 border border-bio-800 px-3 py-1.5 rounded-lg text-xs font-semibold text-white">Cartão de Crédito</span>
+                        <span class="bg-bio-900 border border-bio-800 px-3 py-1.5 rounded-lg text-xs font-semibold text-white">Boleto</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-bio-900 text-center text-xs text-bio-400 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p>&copy; 2026 BioStore. Todos os direitos reservados.</p>
+                <p class="flex items-center gap-1">Desenvolvido para entusiastas da biologia e terrarismo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Carrinho lateral -->
+    <div id="fundoCarrinho" class="fixed inset-0 bg-bio-950/70 backdrop-blur-md z-50 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out">
+        <div id="gavetaCarrinho" class="fixed inset-y-0 right-0 max-w-full flex pl-10 transform translate-x-full transition-transform duration-300 ease-out">
+            <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+                
+                <div class="p-6 bg-bio-900 text-white flex items-center justify-between border-b border-bio-800">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="shopping-cart" class="w-6 h-6 text-emerald-400"></i>
+                        <h2 class="text-lg font-bold">Seu Carrinho</h2>
+                    </div>
+                    <button id="btnFecharCarrinho" class="text-bio-300 hover:text-white p-1 rounded-lg hover:bg-bio-800 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div id="barraFreteGratis" class="bg-emerald-50 px-6 py-3 border-b border-emerald-100 text-xs text-bio-800"></div>
+
+                <div id="listaItensCarrinho" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+
+                <div class="p-6 bg-bio-50 border-t border-bio-100 space-y-4">
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between text-bio-700">
+                            <span>Subtotal</span>
+                            <span id="carrinhoSubtotal" class="font-semibold text-bio-900">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-bio-700">
+                            <span>Frete Estimado</span>
+                            <span id="carrinhoFrete" class="font-semibold text-emerald-700">Grátis</span>
+                        </div>
+                        <div class="flex justify-between text-base font-bold text-bio-950 pt-2 border-t border-bio-200">
+                            <span>Total</span>
+                            <span id="carrinhoTotal" class="text-emerald-700 text-lg">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <button id="btnIrParaCheckout" class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-emerald-600/30 transition-all duration-300 flex items-center justify-center gap-2">
+                        <span>Finalizar Compra</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de finalizar pedido -->
+    <div id="modalCheckout" class="fixed inset-0 bg-bio-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div id="caixaModalCheckout" class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300">
+            <div class="bg-bio-900 text-white p-5 flex items-center justify-between">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i> Finalizar Pedido
+                </h3>
+                <button id="btnFecharCheckout" class="text-bio-300 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1 space-y-6">
+                <form id="formCheckout" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-bio-800 uppercase tracking-wider mb-1">Nome Completo</label>
+                        <input type="text" id="chkNome" required class="w-full border border-bio-200 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all" placeholder="Ex: Maria Silva">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-bio-800 uppercase tracking-wider mb-1">E-mail para confirmação</label>
+                        <input type="email" id="chkEmail" required class="w-full border border-bio-200 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all" placeholder="maria@email.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-bio-800 uppercase tracking-wider mb-1">Endereço de Entrega</label>
+                        <input type="text" id="chkEndereco" required class="w-full border border-bio-200 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all" placeholder="Rua, número, complemento e CEP">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-bio-800 uppercase tracking-wider mb-2">Forma de Pagamento</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label id="cardPagamentoPix" onclick="selecionarPagamento('pix')" class="border border-emerald-500 bg-emerald-50 text-emerald-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all">
+                                <input type="radio" name="pagamento" value="pix" checked class="hidden">
+                                <i data-lucide="qr-code" class="w-5 h-5 text-emerald-600"></i>
+                                <span class="text-xs font-bold">PIX</span>
+                                <span class="text-[10px] text-emerald-700 font-medium">5% OFF</span>
+                            </label>
+                            <label id="cardPagamentoCartao" onclick="selecionarPagamento('cartao')" class="border border-bio-200 text-bio-800 hover:border-emerald-500 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all">
+                                <input type="radio" name="pagamento" value="cartao" class="hidden">
+                                <i data-lucide="credit-card" class="w-5 h-5 text-emerald-600"></i>
+                                <span class="text-xs font-bold">Cartão</span>
+                                <span class="text-[10px] text-bio-500 font-medium">Até 6x s/ juros</span>
+                            </label>
+                            <label id="cardPagamentoBoleto" onclick="selecionarPagamento('boleto')" class="border border-bio-200 text-bio-800 hover:border-emerald-500 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all">
+                                <input type="radio" name="pagamento" value="boleto" class="hidden">
+                                <i data-lucide="barcode" class="w-5 h-5 text-emerald-600"></i>
+                                <span class="text-xs font-bold">Boleto</span>
+                                <span class="text-[10px] text-bio-500 font-medium">À vista</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bg-bio-50 border border-bio-200 rounded-xl p-4 space-y-2 text-sm">
+                        <div class="flex justify-between text-bio-700">
+                            <span>Itens (<span id="chkQtdItens">0</span>)</span>
+                            <span id="chkSubtotal" class="font-medium">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-bio-700">
+                            <span>Frete</span>
+                            <span id="chkFrete" class="font-medium text-emerald-700">Grátis</span>
+                        </div>
+                        <div id="linhaDescontoPix" class="flex justify-between text-emerald-700">
+                            <span>Desconto PIX (5%)</span>
+                            <span id="chkDescontoPix" class="font-semibold">- R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-bio-950 text-base pt-2 border-t border-bio-200">
+                            <span>Total a Pagar</span>
+                            <span id="chkTotal" class="text-emerald-700">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        <span>Confirmar Pedido</span>
+                    </button>
+                </form>
+
+                <!-- Mensagem de pedido confirmado -->
+                <div id="sucessoCheckout" class="hidden text-center py-6 space-y-4">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="check" class="w-9 h-9"></i>
+                    </div>
+                    <h4 class="text-xl font-extrabold text-bio-950">Pedido Confirmado!</h4>
+                    <p class="text-sm text-bio-700 max-w-sm mx-auto">
+                        Obrigado pela compra, <span id="sucessoNomeCliente" class="font-bold text-bio-900"></span>! Enviamos o código de rastreio e os detalhes para <span id="sucessoEmailCliente" class="font-semibold"></span>.
+                    </p>
+                    <div class="bg-bio-50 border border-bio-200 rounded-xl p-3 text-xs text-bio-800 font-mono">
+                        Pedido #<span id="sucessoNumeroPedido">BIO-2026</span>
+                    </div>
+                    <button onclick="fecharCheckout()" class="bg-bio-900 hover:bg-bio-800 text-white font-bold px-6 py-3 rounded-xl transition-all">
+                        Continuar Explorando
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de detalhes do produto -->
+    <div id="modalProduto" class="fixed inset-0 bg-bio-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div id="caixaModalProduto" class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300">
+            <div class="relative">
+                <img id="modalProdImagem" src="" alt="" class="w-full h-64 sm:h-72 object-cover">
+                <button onclick="fecharModalProduto()" class="absolute top-4 right-4 bg-bio-950/70 hover:bg-bio-950 text-white p-2 rounded-full backdrop-blur-md transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <span id="modalProdCategoria" class="absolute bottom-4 left-4 bg-bio-900/90 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/30 backdrop-blur-md"></span>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                    <h3 id="modalProdNome" class="text-2xl font-extrabold text-bio-950"></h3>
+                    <span id="modalProdPreco" class="text-2xl font-extrabold text-emerald-700"></span>
+                </div>
+                <p id="modalProdDescricao" class="text-sm text-bio-700 leading-relaxed"></p>
+                <div class="bg-bio-50 border border-bio-100 rounded-xl p-4 space-y-2">
+                    <h4 class="text-xs font-bold text-bio-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="microscope" class="w-4 h-4 text-emerald-600"></i> Especificações & Cuidados
+                    </h4>
+                    <ul id="modalProdEspecificacoes" class="text-xs text-bio-700 space-y-1.5 list-disc list-inside"></ul>
+                </div>
+                <div class="pt-2 flex items-center gap-3">
+                    <button id="btnAddModal" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i> Adicionar ao Carrinho
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de login / perfil -->
+    <div id="modalConta" class="fixed inset-0 bg-bio-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div id="caixaModalConta" class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="bg-bio-900 text-white p-5 flex items-center justify-between">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i data-lucide="user-circle" class="w-5 h-5 text-emerald-400"></i> <span id="tituloModalConta">Minha Conta BioStore</span>
+                </h3>
+                <button onclick="fecharModalConta()" class="text-bio-300 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="corpoModalConta" class="p-6"></div>
+        </div>
+    </div>
+
+    <!-- Avisos na tela -->
+    <div id="containerAvisos" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // produtos cadastrados no site
+        const produtos = [
+            {
+                id: 1,
+                nome: "Terrário Fechado Ecossistema Atlântico",
+                categoria: "Terrários",
+                preco: 189.90,
+                selo: "Mais Vendido",
+                ordem: 1,
+                imagem: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=800&q=80",
+                descricao: "Microecossistema autossustentável em vidro borossilicato com musgo fofão, fitônia e carvão ativado.",
+                specs: [
+                    "Dimensões: 24 cm altura x 16 cm diâmetro (vidro com rolha de cortiça)",
+                    "Ciclo hidrológico fechado: necessita rega apenas 2 a 3 vezes ao ano",
+                    "Iluminação ideal: luz natural indireta abundante (evitar sol direto)",
+                    "Camadas: seixos de drenagem, manta geotêxtil, carvão ativado e substrato orgânico"
+                ]
+            },
+            {
+                id: 2,
+                nome: "Kit 10 Placas de Petri com Ágar BDA Estéril",
+                categoria: "Culturas",
+                preco: 74.50,
+                selo: "Pronto p/ Uso",
+                ordem: 2,
+                imagem: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=80",
+                descricao: "Placas de 90x15 mm preenchidas em fluxo laminar com meio Batata Dextrose Ágar para isolamento fúngico.",
+                specs: [
+                    "Esterilizadas em autoclave a 121 °C e seladas individualmente com parafilme",
+                    "Validade refrigerada (2 °C a 8 °C): até 60 dias após o envio",
+                    "Ideal para aulas práticas de microbiologia, micologia e controle ambiental",
+                    "Acompanha bula técnica com protocolo de inoculação"
+                ]
+            },
+            {
+                id: 3,
+                nome: "Microscópio Óptico Monocular LED 1000x",
+                categoria: "Equipamentos",
+                preco: 849.00,
+                selo: "Alta Precisão",
+                ordem: 3,
+                imagem: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80",
+                descricao: "Corpo metálico robusto com objetivas acromáticas 4x, 10x, 40x e 100x (imersão) e condensador Abbe.",
+                specs: [
+                    "Ampliação total: 40x até 1000x com ocular WF10x de campo amplo",
+                    "Charriot mecânico graduado com ajuste coaxial macrométrico e micrométrico",
+                    "Iluminação LED fria recarregável com controle de intensidade",
+                    "Inclui óleo de imersão, capa protetora e 5 lâminas preparadas"
+                ]
+            },
+            {
+                id: 4,
+                nome: "Cultura Viva de Microalga Spirulina (500 mL)",
+                categoria: "Culturas",
+                preco: 68.00,
+                selo: "Inóculo Puro",
+                ordem: 4,
+                imagem: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
+                descricao: "Cepa pura de Arthrospira platensis em fase exponencial de crescimento para fotobiorreatores e ensino.",
+                specs: [
+                    "Densidade óptica inicial garantida com alta viabilidade celular",
+                    "Acompanha sachê de sais nutrientes (Meio Zarrouk modificado) para 2 litros",
+                    "Temperatura ótima de cultivo: 25 °C a 32 °C com aeração suave",
+                    "Envio expresso em frasco respirável com proteção térmica"
+                ]
+            },
+            {
+                id: 5,
+                nome: "Substrato Bioativo Premium para Terrários (2 kg)",
+                categoria: "Insumos",
+                preco: 42.90,
+                selo: "Fórmula Exclusiva",
+                ordem: 5,
+                imagem: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=800&q=80",
+                descricao: "Mistura aerada de turfa de sphagnum, casca de pinus moída, húmus esterilizado e carvão vegetal ativado.",
+                specs: [
+                    "pH balanceado (5,8 – 6,4) ideal para briófitas, samambaias e plantas tropicais",
+                    "Previne compactação e proliferação de fungos anaeróbicos em recipientes fechados",
+                    "Livre de pragas, sementes invasoras e fertilizantes químicos agressivos",
+                    "Rende até 3 terrários médios de 20 cm"
+                ]
+            },
+            {
+                id: 6,
+                nome: "Kit Ferramentas Inox para Terrarismo & Dissecção",
+                categoria: "Equipamentos",
+                preco: 89.90,
+                selo: "Aço Cirúrgico",
+                ordem: 6,
+                imagem: "https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&w=800&q=80",
+                descricao: "Conjunto com pinça reta de 27 cm, pinça curva de precisão, tesoura longa e espátula de substrato.",
+                specs: [
+                    "Aço inoxidável anticorrosivo de 27 cm para alcançar gargalos estreitos",
+                    "Pontas serrilhadas de alta aderência para plantio delicado de musgos",
+                    "Acompanha estojo organizador em couro sintético",
+                    "Totalmente autoclavável para uso também em bancada de laboratório"
+                ]
+            },
+            {
+                id: 7,
+                nome: "Terrário Geométrico Dodecaedro Vidro & Latão",
+                categoria: "Terrários",
+                preco: 249.00,
+                selo: "Edição Especial",
+                ordem: 7,
+                imagem: "https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=800&q=80",
+                descricao: "Poliedro artesanal soldado à mão com abertura frontal, ideal para suculentas raras e tilândsias.",
+                specs: [
+                    "Dimensões: 22 cm x 22 cm x 20 cm com acabamento em pátina escura",
+                    "Vidro cristal de 3 mm de alta transparência óptica",
+                    "Ventilação controlada para espécies de clima semiárido",
+                    "Acompanha guia ilustrado de montagem e manutenção"
+                ]
+            },
+            {
+                id: 8,
+                nome: "Colônia de Colêmbolos (Springtails) Limpadores",
+                categoria: "Insumos",
+                preco: 39.90,
+                selo: "Bio-Controle",
+                ordem: 8,
+                imagem: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=800&q=80",
+                descricao: "Microfauna detritívora essencial para manter terrários bioativos livres de mofo e matéria orgânica morta.",
+                specs: [
+                    "Cultura estabelecida em carvão vegetal úmido com +150 indivíduos ativos",
+                    "Reciclam nutrientes continuamente e protegem raízes contra fungos",
+                    "Totalmente inofensivos para plantas vivas, humanos e pets",
+                    "Fácil replicação: basta alimentar com pequenos grãos de levedura"
+                ]
+            },
+            {
+                id: 9,
+                nome: "Kit 25 Lâminas Preparadas Histologia & Botânica",
+                categoria: "Insumos",
+                preco: 119.00,
+                selo: "Didático",
+                ordem: 9,
+                imagem: "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=800&q=80",
+                descricao: "Coleção selecionada em estojo de madeira com cortes transversais de caule, raiz, mitose em cebola e tecidos.",
+                specs: [
+                    "Vidro óptico esmerilado 25,4 x 76,2 mm com lamínula selada",
+                    "Coloração diferencial de alta nitidez (Safranina / Fast Green e HE)",
+                    "Etiquetas numeradas e catalogadas em português",
+                    "Compatível com qualquer microscópio óptico padrão"
+                ]
+            }
+        ];
+
+        const categorias = ["Todos", "Terrários", "Culturas", "Equipamentos", "Insumos"];
+        const freteGratisMinimo = 200.00;
+        const valorFrete = 19.90;
+
+        let categoriaAtual = "Todos";
+        let textoBusca = "";
+        let ordenacao = "destaques";
+        let formaPagamento = "pix";
+        let slideAtual = 0;
+        let intervaloCarrossel = null;
+
+        let carrinho = JSON.parse(localStorage.getItem("biostore_cart")) || [];
+        let usuario = JSON.parse(localStorage.getItem("biostore_user")) || null;
+        let pedidos = JSON.parse(localStorage.getItem("biostore_orders")) || [];
+
+        function formatarPreco(valor) {
+            return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        }
+
+        function salvarDados() {
+            localStorage.setItem("biostore_cart", JSON.stringify(carrinho));
+            localStorage.setItem("biostore_user", JSON.stringify(usuario));
+            localStorage.setItem("biostore_orders", JSON.stringify(pedidos));
+        }
+
+        function pegarProduto(id) {
+            for (let i = 0; i < produtos.length; i++) {
+                if (produtos[i].id === id) {
+                    return produtos[i];
+                }
+            }
+            return null;
+        }
+
+        function mostrarAviso(texto) {
+            const box = document.getElementById("containerAvisos");
+            const msg = document.createElement("div");
+
+            msg.className = "pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border bg-bio-900 border-emerald-500/40 text-white shadow-xl text-sm font-medium transform translate-y-4 opacity-0 transition-all duration-300";
+            msg.innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 shrink-0"></i><span>' + texto + '</span>';
+
+            box.appendChild(msg);
+            lucide.createIcons();
+
+            setTimeout(function () {
+                msg.classList.remove("translate-y-4", "opacity-0");
+            }, 30);
+
+            setTimeout(function () {
+                msg.classList.add("translate-y-4", "opacity-0");
+                setTimeout(function () {
+                    msg.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // carrossel do topo
+        function irParaSlide(num) {
+            const slides = document.querySelectorAll(".slide-carrossel");
+            const bolinhas = document.querySelectorAll("#bolinhasCarrossel button");
+
+            if (num < 0) {
+                slideAtual = slides.length - 1;
+            } else if (num >= slides.length) {
+                slideAtual = 0;
+            } else {
+                slideAtual = num;
+            }
+
+            for (let i = 0; i < slides.length; i++) {
+                if (i === slideAtual) {
+                    slides[i].classList.remove("opacity-0", "scale-95", "pointer-events-none");
+                    slides[i].classList.add("opacity-100", "scale-100");
+                } else {
+                    slides[i].classList.remove("opacity-100", "scale-100");
+                    slides[i].classList.add("opacity-0", "scale-95", "pointer-events-none");
+                }
+            }
+
+            for (let i = 0; i < bolinhas.length; i++) {
+                if (i === slideAtual) {
+                    bolinhas[i].classList.remove("w-3", "bg-white/40");
+                    bolinhas[i].classList.add("w-8", "bg-emerald-400");
+                } else {
+                    bolinhas[i].classList.remove("w-8", "bg-emerald-400");
+                    bolinhas[i].classList.add("w-3", "bg-white/40");
+                }
+            }
+
+            clearInterval(intervaloCarrossel);
+            intervaloCarrossel = setInterval(proximoSlide, 6000);
+        }
+
+        function proximoSlide() {
+            irParaSlide(slideAtual + 1);
+        }
+
+        function slideAnterior() {
+            irParaSlide(slideAtual - 1);
+        }
+
+        // filtros e listagem
+        function mostrarCategorias() {
+            const div = document.getElementById("botoesCategoria");
+            let html = "";
+
+            for (let i = 0; i < categorias.length; i++) {
+                const cat = categorias[i];
+                let estilo = "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border whitespace-nowrap transition-all duration-200 ";
+
+                if (categoriaAtual === cat) {
+                    estilo += "bg-bio-900 text-white shadow-md shadow-bio-900/20 border-bio-900";
+                } else {
+                    estilo += "bg-bio-50 text-bio-800 hover:bg-bio-100 border-bio-200/80";
+                }
+
+                html += '<button onclick="filtrarCategoria(\'' + cat + '\')" class="' + estilo + '">' + cat + '</button>';
+            }
+
+            div.innerHTML = html;
+        }
+
+        function filtrarCategoria(cat, rolar) {
+            categoriaAtual = cat;
+            mostrarCategorias();
+            listarProdutos();
+
+            if (rolar) {
+                document.getElementById("catalogo").scrollIntoView({ behavior: "smooth" });
+            }
+        }
+
+        function limparFiltros() {
+            categoriaAtual = "Todos";
+            textoBusca = "";
+            ordenacao = "destaques";
+
+            document.getElementById("campoBuscaDesktop").value = "";
+            document.getElementById("campoBuscaMobile").value = "";
+            document.getElementById("btnLimparBusca").classList.add("hidden");
+            document.getElementById("selectOrdenar").value = "destaques";
+
+            mostrarCategorias();
+            listarProdutos();
+        }
+
+        function listarProdutos() {
+            const grade = document.getElementById("gradeProdutos");
+            const vazia = document.getElementById("gradeVazia");
+            const status = document.getElementById("statusFiltro");
+            const contador = document.getElementById("contadorProdutos");
+
+            let lista = [];
+            const busca = textoBusca.toLowerCase().trim();
+
+            for (let i = 0; i < produtos.length; i++) {
+                const p = produtos[i];
+                const okCategoria = (categoriaAtual === "Todos") || (p.categoria === categoriaAtual);
+                const okBusca = (busca === "") ||
+                    p.nome.toLowerCase().includes(busca) ||
+                    p.descricao.toLowerCase().includes(busca) ||
+                    p.categoria.toLowerCase().includes(busca);
+
+                if (okCategoria && okBusca) {
+                    lista.push(p);
+                }
+            }
+
+            if (ordenacao === "menor-preco") {
+                lista.sort(function (a, b) { return a.preco - b.preco; });
+            } else if (ordenacao === "maior-preco") {
+                lista.sort(function (a, b) { return b.preco - a.preco; });
+            } else if (ordenacao === "nome-az") {
+                lista.sort(function (a, b) { return a.nome.localeCompare(b.nome); });
+            } else {
+                lista.sort(function (a, b) { return a.ordem - b.ordem; });
+            }
+
+            contador.textContent = lista.length;
+
+            if (categoriaAtual !== "Todos" || busca !== "" || ordenacao !== "destaques") {
+                status.classList.remove("hidden");
+            } else {
+                status.classList.add("hidden");
+            }
+
+            if (lista.length === 0) {
+                grade.innerHTML = "";
+                vazia.classList.remove("hidden");
+                lucide.createIcons();
+                return;
+            }
+
+            vazia.classList.add("hidden");
+            let html = "";
+
+            for (let i = 0; i < lista.length; i++) {
+                const p = lista[i];
+                let selo = "";
+
+                if (p.selo) {
+                    selo = '<span class="absolute top-3 right-3 bg-emerald-500 text-bio-950 text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow">' + p.selo + '</span>';
+                }
+
+                html += `
+                    <article style="animation-delay: ${i * 45}ms" class="animate-fade-in-up card-produto bg-white rounded-2xl border border-bio-100 overflow-hidden flex flex-col justify-between shadow-sm group">
+                        <div>
+                            <div class="relative overflow-hidden h-56 bg-bio-100 cursor-pointer" onclick="abrirModalProduto(${p.id})">
+                                <img src="${p.imagem}" alt="${p.nome}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-bio-950/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <span class="absolute top-3 left-3 bg-bio-950/80 backdrop-blur-md text-emerald-300 text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-500/30">${p.categoria}</span>
+                                ${selo}
+                                <button type="button" class="absolute bottom-3 right-3 bg-white/95 text-bio-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5 text-emerald-600"></i> Detalhes
+                                </button>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h3 onclick="abrirModalProduto(${p.id})" class="font-bold text-lg text-bio-950 leading-snug group-hover:text-emerald-700 transition-colors cursor-pointer">${p.nome}</h3>
+                                <p class="text-xs text-bio-600 leading-relaxed line-clamp-2">${p.descricao}</p>
+                            </div>
+                        </div>
+                        <div class="px-5 pb-5 pt-3 border-t border-bio-50 flex items-center justify-between gap-3">
+                            <div>
+                                <span class="text-[11px] text-bio-500 block">À vista</span>
+                                <span class="text-xl font-extrabold text-bio-950">${formatarPreco(p.preco)}</span>
+                            </div>
+                            <button onclick="adicionarAoCarrinho(${p.id})" class="bg-bio-900 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all flex items-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Adicionar
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }
+
+            grade.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function pesquisar(valor) {
+            textoBusca = valor;
+            document.getElementById("campoBuscaDesktop").value = valor;
+            document.getElementById("campoBuscaMobile").value = valor;
+
+            if (valor.trim() === "") {
+                document.getElementById("btnLimparBusca").classList.add("hidden");
+            } else {
+                document.getElementById("btnLimparBusca").classList.remove("hidden");
+            }
+
+            listarProdutos();
+        }
+
+        // modal de produto
+        function abrirModalProduto(id) {
+            const p = pegarProduto(id);
+            if (!p) return;
+
+            document.getElementById("modalProdImagem").src = p.imagem;
+            document.getElementById("modalProdImagem").alt = p.nome;
+            document.getElementById("modalProdCategoria").textContent = p.categoria;
+            document.getElementById("modalProdNome").textContent = p.nome;
+            document.getElementById("modalProdPreco").textContent = formatarPreco(p.preco);
+            document.getElementById("modalProdDescricao").textContent = p.descricao;
+
+            let listaSpecs = "";
+            for (let i = 0; i < p.specs.length; i++) {
+                listaSpecs += "<li>" + p.specs[i] + "</li>";
+            }
+            document.getElementById("modalProdEspecificacoes").innerHTML = listaSpecs;
+
+            document.getElementById("btnAddModal").onclick = function () {
+                adicionarAoCarrinho(p.id);
+                fecharModalProduto();
+            };
+
+            document.getElementById("modalProduto").classList.remove("opacity-0", "pointer-events-none");
+            document.getElementById("caixaModalProduto").classList.remove("scale-95");
+            document.getElementById("caixaModalProduto").classList.add("scale-100");
+            lucide.createIcons();
+        }
+
+        function fecharModalProduto() {
+            document.getElementById("modalProduto").classList.add("opacity-0", "pointer-events-none");
+            document.getElementById("caixaModalProduto").classList.remove("scale-100");
+            document.getElementById("caixaModalProduto").classList.add("scale-95");
+        }
+
+        // carrinho
+        function adicionarAoCarrinho(id) {
+            let achou = false;
+
+            for (let i = 0; i < carrinho.length; i++) {
+                if (carrinho[i].id === id) {
+                    carrinho[i].quantidade++;
+                    achou = true;
+                    break;
+                }
+            }
+
+            if (!achou) {
+                carrinho.push({ id: id, quantidade: 1 });
+            }
+
+            salvarDados();
+            atualizarCarrinho();
+
+            const p = pegarProduto(id);
+            mostrarAviso('"' + p.nome + '" adicionado ao carrinho!');
+        }
+
+        function alterarQuantidade(id, delta) {
+            for (let i = 0; i < carrinho.length; i++) {
+                if (carrinho[i].id === id) {
+                    carrinho[i].quantidade += delta;
+                    if (carrinho[i].quantidade <= 0) {
+                        carrinho.splice(i, 1);
+                    }
+                    break;
+                }
+            }
+
+            salvarDados();
+            atualizarCarrinho();
+        }
+
+        function removerDoCarrinho(id) {
+            let novo = [];
+            for (let i = 0; i < carrinho.length; i++) {
+                if (carrinho[i].id !== id) {
+                    novo.push(carrinho[i]);
+                }
+            }
+            carrinho = novo;
+
+            salvarDados();
+            atualizarCarrinho();
+        }
+
+        function atualizarCarrinho() {
+            let qtdTotal = 0;
+            let subtotal = 0;
+
+            for (let i = 0; i < carrinho.length; i++) {
+                const p = pegarProduto(carrinho[i].id);
+                if (p) {
+                    qtdTotal += carrinho[i].quantidade;
+                    subtotal += p.preco * carrinho[i].quantidade;
+                }
+            }
+
+            let frete = 0;
+            if (subtotal > 0 && subtotal < freteGratisMinimo) {
+                frete = valorFrete;
+            }
+            const total = subtotal + frete;
+
+            const badge = document.getElementById("contadorCarrinho");
+            badge.textContent = qtdTotal;
+            if (qtdTotal > 0) {
+                badge.classList.remove("scale-0");
+                badge.classList.add("scale-100");
+            } else {
+                badge.classList.remove("scale-100");
+                badge.classList.add("scale-0");
+            }
+
+            const barra = document.getElementById("barraFreteGratis");
+            if (subtotal === 0) {
+                barra.innerHTML = "Frete grátis nas compras acima de <strong>" + formatarPreco(freteGratisMinimo) + "</strong>.";
+            } else if (subtotal >= freteGratisMinimo) {
+                barra.innerHTML = '<span class="flex items-center gap-1.5 text-emerald-700 font-semibold"><i data-lucide="truck" class="w-4 h-4"></i> Parabéns! Você ganhou Frete Grátis!</span>';
+            } else {
+                const falta = freteGratisMinimo - subtotal;
+                const pct = Math.min(100, Math.round((subtotal / freteGratisMinimo) * 100));
+                barra.innerHTML = `
+                    <div class="space-y-1.5">
+                        <p>Faltam <strong>${formatarPreco(falta)}</strong> para <strong>Frete Grátis</strong></p>
+                        <div class="w-full h-1.5 bg-emerald-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-600 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const lista = document.getElementById("listaItensCarrinho");
+            const btnCheckout = document.getElementById("btnIrParaCheckout");
+
+            if (carrinho.length === 0) {
+                btnCheckout.disabled = true;
+                lista.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center py-12 space-y-3">
+                        <div class="w-16 h-16 bg-bio-50 text-bio-400 rounded-full flex items-center justify-center">
+                            <i data-lucide="shopping-bag" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-bold text-bio-900">Seu carrinho está vazio</h3>
+                        <p class="text-xs text-bio-600 max-w-xs">Explore nossos terrários, culturas vivas e equipamentos de laboratório.</p>
+                        <button onclick="fecharCarrinho()" class="mt-2 bg-bio-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-bio-800 transition-colors">
+                            Explorar Produtos
+                        </button>
+                    </div>
+                `;
+            } else {
+                btnCheckout.disabled = false;
+                let html = "";
+
+                for (let i = 0; i < carrinho.length; i++) {
+                    const item = carrinho[i];
+                    const p = pegarProduto(item.id);
+                    if (p) {
+                        html += `
+                            <div class="flex gap-3.5 bg-bio-50/70 border border-bio-100 p-3 rounded-xl items-center">
+                                <img src="${p.imagem}" alt="${p.nome}" class="w-16 h-16 rounded-lg object-cover shrink-0 border border-bio-200">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-sm font-bold text-bio-950 truncate">${p.nome}</h4>
+                                    <span class="text-xs font-semibold text-emerald-700">${formatarPreco(p.preco)}</span>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <button onclick="alterarQuantidade(${p.id}, -1)" class="w-6 h-6 rounded-md bg-white border border-bio-200 hover:border-emerald-500 flex items-center justify-center text-bio-800 font-bold text-xs transition-colors">-</button>
+                                        <span class="text-xs font-bold text-bio-950 w-5 text-center">${item.quantidade}</span>
+                                        <button onclick="alterarQuantidade(${p.id}, 1)" class="w-6 h-6 rounded-md bg-white border border-bio-200 hover:border-emerald-500 flex items-center justify-center text-bio-800 font-bold text-xs transition-colors">+</button>
+                                    </div>
+                                </div>
+                                <button onclick="removerDoCarrinho(${p.id})" class="text-bio-400 hover:text-red-600 p-1.5 transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+
+                lista.innerHTML = html;
+            }
+
+            document.getElementById("carrinhoSubtotal").textContent = formatarPreco(subtotal);
+            document.getElementById("carrinhoFrete").textContent = frete === 0 ? "Grátis" : formatarPreco(frete);
+            document.getElementById("carrinhoTotal").textContent = formatarPreco(total);
+
+            lucide.createIcons();
+        }
+
+        function abrirCarrinho() {
+            document.getElementById("fundoCarrinho").classList.remove("opacity-0", "pointer-events-none");
+            document.getElementById("gavetaCarrinho").classList.remove("translate-x-full");
+        }
+
+        function fecharCarrinho() {
+            document.getElementById("fundoCarrinho").classList.add("opacity-0", "pointer-events-none");
+            document.getElementById("gavetaCarrinho").classList.add("translate-x-full");
+        }
+
+        // checkout e pagamento
+        function selecionarPagamento(tipo) {
+            formaPagamento = tipo;
+
+            const padrao = "border border-bio-200 text-bio-800 hover:border-emerald-500 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all";
+            const ativo = "border border-emerald-500 bg-emerald-50 text-emerald-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all";
+
+            document.getElementById("cardPagamentoPix").className = (tipo === "pix") ? ativo : padrao;
+            document.getElementById("cardPagamentoCartao").className = (tipo === "cartao") ? ativo : padrao;
+            document.getElementById("cardPagamentoBoleto").className = (tipo === "boleto") ? ativo : padrao;
+
+            atualizarResumoPedido();
+        }
+
+        function atualizarResumoPedido() {
+            let qtd = 0;
+            let subtotal = 0;
+
+            for (let i = 0; i < carrinho.length; i++) {
+                const p = pegarProduto(carrinho[i].id);
+                if (p) {
+                    qtd += carrinho[i].quantidade;
+                    subtotal += p.preco * carrinho[i].quantidade;
+                }
+            }
+
+            const frete = (subtotal > 0 && subtotal < freteGratisMinimo) ? valorFrete : 0;
+            const desconto = (formaPagamento === "pix") ? subtotal * 0.05 : 0;
+            const total = subtotal + frete - desconto;
+
+            document.getElementById("chkQtdItens").textContent = qtd;
+            document.getElementById("chkSubtotal").textContent = formatarPreco(subtotal);
+            document.getElementById("chkFrete").textContent = frete === 0 ? "Grátis" : formatarPreco(frete);
+
+            if (formaPagamento === "pix") {
+                document.getElementById("linhaDescontoPix").classList.remove("hidden");
+            } else {
+                document.getElementById("linhaDescontoPix").classList.add("hidden");
+            }
+
+            document.getElementById("chkDescontoPix").textContent = "- " + formatarPreco(desconto);
+            document.getElementById("chkTotal").textContent = formatarPreco(total);
+        }
+
+        function fecharCheckout() {
+            document.getElementById("modalCheckout").classList.add("opacity-0", "pointer-events-none");
+            document.getElementById("caixaModalCheckout").classList.remove("scale-100");
+            document.getElementById("caixaModalCheckout").classList.add("scale-95");
+        }
+
+        // conta de usuário
+        function atualizarBotaoUsuario() {
+            const area = document.getElementById("areaUsuarioNav");
+
+            if (usuario) {
+                const nome = usuario.nome.split(" ")[0];
+                const letra = nome.charAt(0).toUpperCase();
+
+                area.innerHTML = `
+                    <button onclick="abrirModalConta()" class="bg-bio-800/70 hover:bg-bio-700 border border-bio-600/50 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white flex items-center gap-2 transition-all">
+                        <span class="w-6 h-6 rounded-full bg-emerald-500 text-bio-950 font-extrabold text-xs flex items-center justify-center">${letra}</span>
+                        <span class="hidden sm:inline">${nome}</span>
+                    </button>
+                `;
+            } else {
+                area.innerHTML = `
+                    <button onclick="abrirModalConta()" class="bg-bio-800/70 hover:bg-bio-700 border border-bio-600/50 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-bio-100 hover:text-white flex items-center gap-2 transition-all">
+                        <i data-lucide="user" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Entrar</span>
+                    </button>
+                `;
+            }
+
+            lucide.createIcons();
+        }
+
+        function abrirModalConta() {
+            const corpo = document.getElementById("corpoModalConta");
+            const titulo = document.getElementById("tituloModalConta");
+
+            if (usuario) {
+                titulo.textContent = "Perfil & Pedidos";
+                const letra = usuario.nome.charAt(0).toUpperCase();
+                let listaHtml = "";
+
+                if (pedidos.length === 0) {
+                    listaHtml = '<p class="text-xs text-bio-500 bg-bio-50/60 p-4 rounded-xl text-center">Nenhum pedido realizado ainda.</p>';
+                } else {
+                    listaHtml = '<div class="space-y-2 max-h-44 overflow-y-auto">';
+                    for (let i = 0; i < pedidos.length; i++) {
+                        const ped = pedidos[i];
+                        listaHtml += `
+                            <div class="flex items-center justify-between text-xs bg-bio-50 border border-bio-100 p-3 rounded-xl">
+                                <div>
+                                    <span class="font-bold text-bio-900 block">${ped.id}</span>
+                                    <span class="text-bio-500">${ped.data} • ${ped.itens} item(ns)</span>
+                                </div>
+                                <span class="font-extrabold text-emerald-700">${formatarPreco(ped.total)}</span>
+                            </div>
+                        `;
+                    }
+                    listaHtml += "</div>";
+                }
+
+                corpo.innerHTML = `
+                    <div class="space-y-5">
+                        <div class="flex items-center gap-3 bg-bio-50 p-3.5 rounded-xl border border-bio-100">
+                            <div class="w-11 h-11 rounded-full bg-emerald-600 text-white font-bold text-lg flex items-center justify-center">${letra}</div>
+                            <div>
+                                <h4 class="font-bold text-bio-950">${usuario.nome}</h4>
+                                <p class="text-xs text-bio-600">${usuario.email}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-bold text-bio-800 uppercase tracking-wider mb-2">Histórico de Pedidos (${pedidos.length})</h5>
+                            ${listaHtml}
+                        </div>
+                        <button onclick="sairDaConta()" class="w-full border border-red-200 text-red-700 hover:bg-red-50 font-bold text-sm py-2.5 rounded-xl transition-colors">
+                            Sair da Conta
+                        </button>
+                    </div>
+                `;
+            } else {
+                titulo.textContent = "Acessar Conta BioStore";
+                corpo.innerHTML = `
+                    <form id="formLogin" class="space-y-4">
+                        <p class="text-xs text-bio-600">Entre para acompanhar seus pedidos e agilizar o checkout.</p>
+                        <div>
+                            <label class="block text-xs font-bold text-bio-800 uppercase tracking-wider mb-1">Seu Nome</label>
+                            <input type="text" id="loginNome" required class="w-full border border-bio-200 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Ex: Dr. Carlos Mendes">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-bio-800 uppercase tracking-wider mb-1">E-mail</label>
+                            <input type="email" id="loginEmail" required class="w-full border border-bio-200 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="carlos@laboratorio.com.br">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl shadow-md transition-all">
+                            Entrar / Cadastrar
+                        </button>
+                    </form>
+                `;
+
+                document.getElementById("formLogin").addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    usuario = {
+                        nome: document.getElementById("loginNome").value.trim(),
+                        email: document.getElementById("loginEmail").value.trim()
+                    };
+                    salvarDados();
+                    atualizarBotaoUsuario();
+                    fecharModalConta();
+                    mostrarAviso("Bem-vindo(a), " + usuario.nome + "!");
+                });
+            }
+
+            document.getElementById("modalConta").classList.remove("opacity-0", "pointer-events-none");
+            document.getElementById("caixaModalConta").classList.remove("scale-95");
+            document.getElementById("caixaModalConta").classList.add("scale-100");
+            lucide.createIcons();
+        }
+
+        function fecharModalConta() {
+            document.getElementById("modalConta").classList.add("opacity-0", "pointer-events-none");
+            document.getElementById("caixaModalConta").classList.remove("scale-100");
+            document.getElementById("caixaModalConta").classList.add("scale-95");
+        }
+
+        function sairDaConta() {
+            usuario = null;
+            salvarDados();
+            atualizarBotaoUsuario();
+            fecharModalConta();
+            mostrarAviso("Você saiu da sua conta.");
+        }
+
+        // eventos dos botões e inputs
+        document.getElementById("campoBuscaDesktop").addEventListener("input", function (e) {
+            pesquisar(e.target.value);
+        });
+
+        document.getElementById("campoBuscaMobile").addEventListener("input", function (e) {
+            pesquisar(e.target.value);
+        });
+
+        document.getElementById("btnLimparBusca").addEventListener("click", function () {
+            pesquisar("");
+        });
+
+        document.getElementById("selectOrdenar").addEventListener("change", function (e) {
+            ordenacao = e.target.value;
+            listarProdutos();
+        });
+
+        document.getElementById("btnAbrirCarrinho").addEventListener("click", abrirCarrinho);
+        document.getElementById("btnFecharCarrinho").addEventListener("click", fecharCarrinho);
+        document.getElementById("fundoCarrinho").addEventListener("click", function (e) {
+            if (e.target.id === "fundoCarrinho") fecharCarrinho();
+        });
+
+        document.getElementById("modalProduto").addEventListener("click", function (e) {
+            if (e.target.id === "modalProduto") fecharModalProduto();
+        });
+
+        document.getElementById("modalConta").addEventListener("click", function (e) {
+            if (e.target.id === "modalConta") fecharModalConta();
+        });
+
+        document.getElementById("btnIrParaCheckout").addEventListener("click", function () {
+            if (carrinho.length === 0) return;
+            fecharCarrinho();
+
+            document.getElementById("formCheckout").classList.remove("hidden");
+            document.getElementById("sucessoCheckout").classList.add("hidden");
+
+            if (usuario) {
+                document.getElementById("chkNome").value = usuario.nome;
+                document.getElementById("chkEmail").value = usuario.email;
+            }
+
+            selecionarPagamento("pix");
+
+            document.getElementById("modalCheckout").classList.remove("opacity-0", "pointer-events-none");
+            document.getElementById("caixaModalCheckout").classList.remove("scale-95");
+            document.getElementById("caixaModalCheckout").classList.add("scale-100");
+            lucide.createIcons();
+        });
+
+        document.getElementById("btnFecharCheckout").addEventListener("click", fecharCheckout);
+        document.getElementById("modalCheckout").addEventListener("click", function (e) {
+            if (e.target.id === "modalCheckout") fecharCheckout();
+        });
+
+        document.getElementById("formCheckout").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const nome = document.getElementById("chkNome").value.trim();
+            const email = document.getElementById("chkEmail").value.trim();
+            const endereco = document.getElementById("chkEndereco").value.trim();
+
+            let qtd = 0;
+            let subtotal = 0;
+            for (let i = 0; i < carrinho.length; i++) {
+                const p = pegarProduto(carrinho[i].id);
+                if (p) {
+                    qtd += carrinho[i].quantidade;
+                    subtotal += p.preco * carrinho[i].quantidade;
+                }
+            }
+
+            const frete = (subtotal > 0 && subtotal < freteGratisMinimo) ? valorFrete : 0;
+            const desconto = (formaPagamento === "pix") ? subtotal * 0.05 : 0;
+            const totalFinal = subtotal + frete - desconto;
+
+            const codigo = "BIO-" + (Math.floor(Math.random() * 900000) + 100000);
+
+            pedidos.unshift({
+                id: codigo,
+                data: new Date().toLocaleDateString("pt-BR"),
+                total: totalFinal,
+                itens: qtd,
+                endereco: endereco
+            });
+
+            carrinho = [];
+            salvarDados();
+            atualizarCarrinho();
+
+            document.getElementById("sucessoNomeCliente").textContent = nome;
+            document.getElementById("sucessoEmailCliente").textContent = email;
+            document.getElementById("sucessoNumeroPedido").textContent = codigo;
+
+            document.getElementById("formCheckout").classList.add("hidden");
+            document.getElementById("sucessoCheckout").classList.remove("hidden");
+            lucide.createIcons();
+        });
+
+        // inicia a página
+        document.addEventListener("DOMContentLoaded", function () {
+            atualizarBotaoUsuario();
+            mostrarCategorias();
+            atualizarCarrinho();
+            intervaloCarrossel = setInterval(proximoSlide, 6000);
+
+            setTimeout(function () {
+                document.getElementById("carregandoGrade").classList.add("hidden");
+                listarProdutos();
+            }, 300);
+
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
